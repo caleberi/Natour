@@ -47,7 +47,6 @@ exports.login = async (req, res, next) => {
 exports.isAuthenticated = async (req, res, next) => {
   if (req.headers.passcodetype) {
     const credentials = req.headers.passcodetype;
-
     const { user, pass } = credentials;
     let isAllowed = false;
     _.forEach(config.admins, ({ _user, _pass }) => {
@@ -111,7 +110,6 @@ exports.isAuthenticated = async (req, res, next) => {
 
 exports.isAuthorized = (...restrictedRoles) => {
   return (req, res, next) => {
-    console.log(req.isAllowed);
     if (req.isAllowed || restrictedRoles.includes(req.user.role)) return next();
 
     return next(new AppError(messages.UNAUTHORIZED, codes.UNAUTHORIZED, false));
