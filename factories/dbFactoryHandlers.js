@@ -34,4 +34,17 @@ module.exports = {
       })
     );
   },
+  async getAllfn(model, { name }) {
+    const docs = await model.find();
+    if (!docs) {
+      return next(
+        new AppError(messages.NO_ENTITY(name), codes.NOT_FOUND, false)
+      );
+    }
+    return res.status(codes.OK).json(
+      createSuccessResponse({
+        data: { docs, result: docs.length },
+      })
+    );
+  },
 };
