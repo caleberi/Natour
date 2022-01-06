@@ -3,20 +3,10 @@ const { AppError } = require('../helpers/error');
 const { codes, messages } = require('../helpers/constants');
 const { ReviewQueryApi } = require('../helpers/queries');
 const { createSuccessResponse } = require('../helpers/utils');
-const { createfn } = require('../factories/dbFactoryHandlers');
+const { createfn, getAllfn } = require('../factories/dbFactoryHandlers');
 const actions = {
   async getAllReviews(req, res, next) {
-    const reviews = await db.find();
-    if (!reviews) {
-      return next(
-        new AppError(messages.NO_ENTITY('review'), codes.NOT_FOUND, false)
-      );
-    }
-    return res.status(codes.OK).json(
-      createSuccessResponse({
-        data: { reviews, result: reviews.length },
-      })
-    );
+    return await getAllfn(db, { name: 'reviews' });
   },
   async getReviewsByQuery(req, res, next) {
     const feature = new ReviewQueryApi(
