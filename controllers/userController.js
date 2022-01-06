@@ -2,17 +2,10 @@ const db = require('../model/userModel');
 const { codes, messages } = require('../helpers/constants');
 const { AppError, ValidationError } = require('../helpers/error');
 const { createSuccessResponse } = require('../helpers/utils');
-const { getOnefn } = require('../factories/dbFactoryHandlers');
+const { getOnefn, getAllfn } = require('../factories/dbFactoryHandlers');
 const actions = {
   async getAllUsers(req, res, next) {
-    const users = await db.find();
-    if (!users) {
-      return new AppError(messages.NO_ENTITY('User'), codes.NOT_FOUND, false);
-    }
-    res.status(codes.OK).json({
-      status: 'success',
-      data: { users },
-    });
+    return await getAllfn(db, { name: 'Users' });
   },
   async getUser(req, res, next) {
     return await getOnefn(db, { id: req.params.id, name: 'User' });
