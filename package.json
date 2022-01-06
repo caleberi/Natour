@@ -1,0 +1,59 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "A travel based application which provides both a user friendly interface and an well structure API ",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "start:prod": "NODE_ENV=production  nodemon index.js",
+    "debug": "ndb index.js"
+  },
+  "keywords": [
+    "REST",
+    "API",
+    "EXPRESS",
+    "NODE",
+    "JAVASCRIPT"
+  ],
+  "author": "hebronace",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "eslint": "^8.4.1",
+    "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.27.1",
+    "express": "^4.17.1",
+    "express-mongo-sanitize": "^2.1.0",
+    "express-rate-limit": "^6.0.1",
+    "helmet": "^4.6.0",
+    "hpp": "^0.2.3",
+    "implement-js": "^0.0.31",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mongoose": "^6.1.2",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.7.2",
+    "nodemon": "^2.0.15",
+    "otp-generator": "2.0.1",
+    "prettier": "^2.5.1",
+    "redis": "^4.0.1",
+    "slugify": "^1.6.4",
+    "twilio": "^3.72.0",
+    "validator": "^13.7.0",
+    "xss-clean": "^0.1.1",
+    "yargs": "^17.3.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "devDependencies": {
+    "ndb": "^1.1.5"
+  }
+}
