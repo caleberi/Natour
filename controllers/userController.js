@@ -2,7 +2,11 @@ const db = require('../model/userModel');
 const { codes, messages } = require('../helpers/constants');
 const { AppError, ValidationError } = require('../helpers/error');
 const { createSuccessResponse } = require('../helpers/utils');
-const { getOnefn, getAllfn } = require('../factories/dbFactoryHandlers');
+const {
+  getOnefn,
+  getAllfn,
+  updatefn,
+} = require('../factories/dbFactoryHandlers');
 const actions = {
   async getAllUsers(req, res, next) {
     return await getAllfn(db, { name: 'Users' });
@@ -13,17 +17,14 @@ const actions = {
   async updateMe(req, res, next) {
     let { body } = req;
     body = util.filterBody(body, 'password', 'passwordConfirm', 'role');
-    const user = await db.findById(req.params.id);
-    if (!user) {
-      return next(
-        new AppError(messages.NOT_FOUND_ID('User'), codes.NOT_FOUND, false)
-      );
-    }
-    await db.findByIdAndUpdate(req.params.id, body, {
-      new: true,
+    return await updatefn(db, res, {
+      id: req.params.id,
+      name: 'User',
+      body,
+      newDoc: true,
+      upsert: false,
       runValidators: true,
     });
-    return util.createSendWithToken(user, codes.OK, res);
   },
   async deleteMe(req, res, next) {
     return this.deleteUser(req, res, next);
