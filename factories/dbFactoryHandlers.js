@@ -47,4 +47,22 @@ module.exports = {
       })
     );
   },
+  async updatefn(
+    model,
+    res,
+    { name, id, body, newDoc, upsert, runValidators }
+  ) {
+    const doc = await model.findById(id);
+    if (!doc) {
+      return next(
+        new AppError(messages.NOT_FOUND_ID(name), codes.NOT_FOUND, false)
+      );
+    }
+    let opts = {};
+    if (newDoc) opts = { ...opts, new: true };
+    if (upsert) opts = { ...opts, upsert: true };
+    if (runValidators) opts = { ...opts, runValidators: true };
+    await model.findByIdAndUpdate(id, body, opts);
+    return util.createSendWithToken(docs, codes.OK, res);
+  },
 };
