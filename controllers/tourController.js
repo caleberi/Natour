@@ -10,6 +10,7 @@ const {
   createfn,
   deletefn,
   getOnefn,
+  updatefn,
 } = require('../factories/dbFactoryHandlers');
 const actions = {
   async getTour(req, res, next) {
@@ -60,17 +61,14 @@ const actions = {
   },
 
   async updateTour(req, res, next) {
-    const tour = await db.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+    await updatefn(db, res, {
+      body: req.body,
+      id: req.params.id,
+      newDoc: true,
       upsert: true,
+      name: 'Tour',
+      runValidators: true,
     });
-    if (!tour) {
-      return next(
-        new AppError(messages.NOT_FOUND_ID('tour'), codes.NOT_FOUND, false)
-      );
-    }
-    res.status(codes.OK).json(createSuccessResponse({ data: { tour } }));
   },
 
   async createTour(req, res, next) {
