@@ -9,7 +9,6 @@ const metricRouter = require('./metrics/index');
 const searchRouter = require('./search/index');
 
 module.exports = (io) => {
-  router.get('/', (req, res, next) => res.send('feature endpoint pinged'));
   router.use('/chat', chatRouter(io));
   router.use('/dashboard', dashboardRouter(io));
   router.use('/metrics', metricRouter(io));
