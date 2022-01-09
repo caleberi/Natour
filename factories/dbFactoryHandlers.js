@@ -1,4 +1,5 @@
-const { codes, messages, errorType } = require('../helpers/constants');
+const { codes, messages } = require('../helpers/constants');
+const { AppError } = require('../helpers/error');
 const util = require('../helpers/utils');
 
 module.exports = {
@@ -10,6 +11,7 @@ module.exports = {
           new AppError(messages.NOT_CREATED(name), codes.BAD_REQUEST, false)
         );
       }
+      console.log(doc);
       return util.createSendWithToken(doc, codes.CREATED, res, { doc });
     };
   },
@@ -63,6 +65,6 @@ module.exports = {
     if (upsert) opts = { ...opts, upsert: true };
     if (runValidators) opts = { ...opts, runValidators: true };
     await model.findByIdAndUpdate(id, body, opts);
-    return util.createSendWithToken(docs, codes.OK, res);
+    return util.createSendWithToken(doc, codes.OK, res);
   },
 };
