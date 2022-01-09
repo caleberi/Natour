@@ -6,7 +6,11 @@ const http = require('http');
 const globalErrorHandler = require('./controllers/errorController');
 const { AppError } = require('./helpers/error');
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: `http://localhost:${config.appPort}`,
+  },
+});
 
 // plugin feature dependencies that need socket connection here
 //************************************************************/

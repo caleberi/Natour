@@ -4,8 +4,8 @@ const manager = new NlpManager(nplConfiguration);
 
 async function trainAI(str) {
   await manager.addCorpus('./tset-en.json');
-  await nlp.train();
+  await manager.train();
   return await manager.process('en', str);
 }
 
-module.exports = trainAI;
+module.exports = { trainAI };

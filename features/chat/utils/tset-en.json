@@ -661,6 +661,7 @@
         "utterances": [
           "hello",
           "hi",
+          "Hi",
           "howdy"
         ],
         "answers": [
