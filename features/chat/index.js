@@ -33,22 +33,32 @@ function registerIOMiddleware(io) {
 }
 
 const initializeIO = function (io) {
+  // io.engine.on('headers', (headers, req) => {
+  //   headers['set-cookie'] = req.user;
+  // });
+
+  io.engine.on('connection_error', (err) => {
+    // Logging the request object,the error code,the error message,some additional error context
+    console.log('ERROR: req : %s  , code : %s , message : %s , context : %s');
+  });
+
   io.on(eventType.CHAT_CONNECTED, (socket) => {
     console.log(`${socket.id} just connected ...`);
+    console.log(`number of connected client are ${io.of('/').sockets.size}`);
     registerIOHandlers(socket);
     socket.onAny((event, ...args) => {
-      console.log('EVENT:: ', event, args);
+      console.log('EVENT::', event, args);
     });
   });
   io.on(eventType.CHAT_DISCONNECTED, (socket) => {
     console.log(`${socket.id} just disconnected ...`);
   });
 
-  //   io.on(eventType.CHAT_CONNECT_ERROR, (err) => {
-  //     // prints the message associated with the error
-  //     console.log('SOCKET_ERROR:: %s', err.message);
-  //     io.emit(eventType.CHAT_SERVER_MESSAGE_OUT);
-  //   });
+  io.on(eventType.CHAT_CONNECT_ERROR, (err) => {
+    // prints the message associated with the error
+    console.log('SOCKET_ERROR::%s', err.message);
+    io.emit(eventType.CHAT_SERVER_MESSAGE_IN);
+  });
 };
 
 const registerIOHandlers = function (io) {
