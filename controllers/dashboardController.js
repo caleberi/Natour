@@ -2,7 +2,7 @@ const userDB = require('../model/userModel');
 const reviewDB = require('../model/reviewModel');
 const tourDB = require('../model/tourModel');
 const { codes, messages } = require('../helpers/constants');
-const { AppError, ValidationError } = require('../helpers/error');
+// const { AppError, ValidationError } = require('../helpers/error');
 const { createSuccessResponse } = require('../helpers/utils');
 const actions = {
   async getDashboardUsers(req, res, next) {
@@ -21,7 +21,7 @@ const actions = {
     let tours = await tourDB
       .find()
       .select(
-        '+name +slug +difficult +ratingsAverage +guides +secretTour +description'
+        '+name +slug +difficulty +ratingsAverage +guides +secretTour +summary -startLocation -description -locations -imageCover -images -startDates '
       );
     return res.status(codes.OK).json(createSuccessResponse({ data: tours }));
   },
@@ -29,8 +29,8 @@ const actions = {
   async getDashboardReviews(req, res, next) {
     let reviews = await reviewDB
       .find()
-      .populate({ path: 'tour', select: 'name slug' })
-      .populate({ path: 'users', select: 'name role' });
+      .populate({ path: 'tour', select: '+name +slug ' })
+      .populate({ path: 'user', select: '+name +role' });
     return res.status(codes.OK).json(createSuccessResponse({ data: reviews }));
   },
 };
