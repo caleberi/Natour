@@ -1,8 +1,7 @@
 exports.eventType = {
-  CHAT_CLIENT_MESSAGE_IN: 'chatclient:message_in',
-  CHAT_SERVER_MESSAGE_OUT: 'chatserver:message_out',
-  CHAT_CLIENT_ACTION_REQUEST: 'chatclient:action_request',
-  CHAT_SERVER_ACTION_RESPONSE: 'chatclient:action_response',
+  CHATSERVER_SENT_MESSAGE: 'chatserver:sent:message',
+  CHATSERVER_RESOLVE_ACTION: 'chatserver:resolve:action',
+  CHATCLIENT_SENT_MESSAGE: 'chatclient:sent:message',
   CHAT_CONNECTED: 'connection',
   CHAT_DISCONNECTED: 'disconnecting',
   CHAT_CONNECT_ERROR: 'connect_error',
@@ -32,6 +31,6 @@ exports.Message = (to, from) => ({
 });
 
 exports.ioMessageStatus = {
-  ACK: 'Acknowledge',
-  NACK: 'Not Acknowledge',
+  ACK: 'Ack',
+  NACK: 'Nack',
 };

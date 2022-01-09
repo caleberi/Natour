@@ -907,15 +907,15 @@
               "Go ahead , ask"
           ],
           "answers":[
-              "Could you provide an answer in this format : 'hobbies:[*,*,*...],distance:*,difficulty:EASY,DIFFICULT,MEDUIM"
+              "Could you provide an answer in this format : '/action/difficulty:easy or difficult or medium"
           ]
       },
       {
           "intent":"tour.answer",
           "utterances":[
-              "hobbies:[*,*,*...],distance:*,difficulty:EASY,DIFFICULT,MEDUIM"
+              "/action/difficulty:easy or difficult or medium"
           ],"answers":[
-              "Right on it"
+              "Right on it ... "
           ]
       }
     ]
