@@ -45,6 +45,7 @@
     "nodemon": "^2.0.15",
     "otp-generator": "2.0.1",
     "prettier": "^2.5.1",
+    "pug": "^3.0.2",
     "redis": "^4.0.1",
     "slugify": "^1.6.4",
     "socket.io": "^4.4.1",
