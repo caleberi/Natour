@@ -36,6 +36,7 @@ app.use(xss());
 app.use(hpp({ whitelist: tools.HPP_WHITELIST }));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, './views'));
+app.locals.moment = require('moment');
 app.get('/ping', (req, res, next) => res.send('Pinged'));
 app.use('/public', express.static(path.join(__dirname, './public')));
 app.use(`/api/v1`, apiLimiter);

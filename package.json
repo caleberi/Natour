@@ -38,6 +38,7 @@
     "implement-js": "^0.0.31",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
+    "moment": "^2.29.1",
     "mongoose": "^6.1.2",
     "morgan": "^1.10.0",
     "node-nlp": "^4.22.8",
