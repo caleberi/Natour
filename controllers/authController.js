@@ -8,6 +8,45 @@ const _ = require('lodash');
 const otpGenerator = require('otp-generator');
 const { codes, messages, errorType } = require('../helpers/constants');
 const { createfn } = require('../factories/dbFactoryHandlers');
+
+async function resolveJWT(token, req, res, next) {
+  try {
+    let user = await util.verifyTokenWithJWT(token);
+    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
+
+    if (isExpired) {
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    }
+    let foundUser = await db.findById(user.id);
+    if (!foundUser) {
+      return next(
+        new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+      );
+    }
+    if (foundUser.checkLastPasswordModificationDate(user.iat)) {
+      return next(
+        new AppError(messages.PASSWORD_CHANGED, codes.UNAUTHORIZED, false)
+      );
+    }
+    req.user = user;
+    res.locals = {};
+    res.locals.user = foundUser;
+    return next();
+  } catch (err) {
+    console.log(err);
+    if (err.name === errorType.TOKEN_EXPIRED_ERROR)
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    if (err.name === errorType.NOT_BEFORE_ERROR)
+      return next(new AppError(messages.INACTIVE_JWT, codes.BAD_REQUEST, true));
+    return next(
+      new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
+    );
+  }
+}
 //✅
 exports.signup = async (req, res, next) => {
   const payload = util.allowOnlySpecifiedField(
@@ -58,51 +97,21 @@ exports.isAuthenticated = async (req, res, next) => {
     }
     return next();
   }
+  if (req.cookies.jwt) {
+    return await resolveJWT(req.cookies.jwt, req, res, next);
+  }
   if (!req.headers.authorization) {
     return next(
       new AppError(messages.AUTH_KEY_PROVISION, codes.BAD_REQUEST, false)
     );
-  }
-  const { authorization } = req.headers;
-  const [tokenType, token] = authorization.split(' ');
-  if (tokenType === 'Bearer' && token) {
-    try {
-      let user = await util.verifyTokenWithJWT(token);
-
-      let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
-
-      if (isExpired) {
-        return next(
-          new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
-        );
-      }
-      let foundUser = await db.findById(user.id);
-      if (!foundUser) {
-        return next(
-          new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
-        );
-      }
-      if (foundUser.checkLastPasswordModificationDate(user.iat)) {
-        return next(
-          new AppError(messages.PASSWORD_CHANGED, codes.UNAUTHORIZED, false)
-        );
-      }
-      req.user = user;
-      return next();
-    } catch (err) {
-      if (err.name === errorType.TOKEN_EXPIRED_ERROR)
-        return next(
-          new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
-        );
-      if (err.name === errorType.NOT_BEFORE_ERROR)
-        return next(
-          new AppError(messages.INACTIVE_JWT, codes.BAD_REQUEST, true)
-        );
-      return next(
-        new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
-      );
+  } else {
+    const { authorization } = req.headers;
+    const [tokenType, token] = authorization.split(' ');
+    if (tokenType === 'Bearer' && token) {
+      return await resolveJWT(token, req, res, next);
     }
   }
+
   return next(
     new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
   );
@@ -165,7 +174,7 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updateUserPassword = async (req, res, next) => {
   const user = await db.findById(req.params.id).select('+password');
-  const { oldPassword, newPasword, newPaswordConfirm } = req.body;
+  const { oldPassword, newPassword, newPasswordConfirm } = req.body;
   if (!(await user.verifyPassword(oldPassword, user.password))) {
     return next(
       new ValidationError(
@@ -175,8 +184,8 @@ exports.updateUserPassword = async (req, res, next) => {
       )
     );
   }
-  user.password = newPasword;
-  user.passwordConfirm = newPaswordConfirm;
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
   await user.save();
   return util.createSendWithToken(user, codes.OK, res);
 };
@@ -239,4 +248,42 @@ exports.resetPasswordWithOTP = async (req, res, next) => {
   return res
     .status(codes.OK)
     .json(util.createSendWithToken(user, codes.OK, res));
+};
+
+exports.isLoggedIn = async (req, res, next) => {
+  if (req.cookies.jwt) {
+    let user = await util.verifyTokenWithJWT(req.cookies.jwt);
+    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
+    if (isExpired) {
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    }
+
+    let foundUser = await db.findById(user.id);
+    console.log(foundUser);
+    if (!foundUser) {
+      return next(
+        new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+      );
+    }
+    res.locals.user = foundUser;
+    return next();
+  } else {
+    return next(
+      new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
+    );
+  }
+};
+
+exports.logout = (req, res, next) => {
+  try {
+    res.cookie('jwt', 'logging user out', {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: true,
+    });
+    return res.status(codes.OK).json(util.createSuccessResponse({}));
+  } catch (err) {
+    next(err);
+  }
 };

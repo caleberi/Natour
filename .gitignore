@@ -3,3 +3,5 @@ node_modules
 *.conf
 *.rdb
 *.prettierrc
+.cache
+.parcel-cache

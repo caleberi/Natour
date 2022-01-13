@@ -47,4 +47,7 @@ module.exports = configuration({
   twilioPhoneNumber: getEnvironmentVariable('TWILIO_PHONE_NUMBER'),
   redisDeleteTime: parseInt(getEnvironmentVariable('REDIS_DELETE_TIME')),
   admins: JSON.parse(getEnvironmentVariable('ADMINS')),
+  imageHeight: parseInt(getEnvironmentVariable('IMAGE_HEIGHT')),
+  imageWidth: parseInt(getEnvironmentVariable('IMAGE_WIDTH')),
+  imageQuality: parseInt(getEnvironmentVariable('IMAGE_QUALITY')),
 });

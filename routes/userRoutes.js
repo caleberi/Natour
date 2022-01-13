@@ -14,6 +14,7 @@ const {
 
 router.post('/signup', catchAsync(auth.signup));
 router.post('/login', catchAsync(auth.login));
+router.get('/logout', auth.logout);
 router.post('/forgotPassword', catchAsync(auth.forgotPassword));
 router.post('/resetPassword/:token', catchAsync(auth.resetPassword));
 router.post('/generateOTP', catchAsync(auth.generateOTP));

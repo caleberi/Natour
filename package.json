@@ -6,7 +6,9 @@
   "scripts": {
     "start": "nodemon index.js",
     "start:prod": "NODE_ENV=production  nodemon index.js",
-    "debug": "ndb index.js"
+    "debug": "ndb index.js",
+    "parcel:js:watch": "parcel watch ./public/js/index.js --out-dir ./public/js  --out-file bundle.js",
+    "parcel:js:build": "parcel build  ./public/js/index.js --out-dir ./public/js --out-file bundle.js "
   },
   "keywords": [
     "REST",
@@ -18,8 +20,11 @@
   "author": "hebronace",
   "license": "MIT",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "@nlpjs/basic": "^4.22.7",
+    "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "eslint": "^8.4.1",
@@ -36,11 +41,13 @@
     "helmet": "^4.6.0",
     "hpp": "^0.2.3",
     "implement-js": "^0.0.31",
+    "jimp": "^0.16.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "mongoose": "^6.1.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.4",
     "node-nlp": "^4.22.8",
     "nodemailer": "^6.7.2",
     "nodemon": "^2.0.15",
@@ -60,6 +67,7 @@
     "node": ">=10.0.0"
   },
   "devDependencies": {
-    "ndb": "^1.1.5"
+    "ndb": "^1.1.5",
+    "parcel-bundler": "^1.12.3"
   }
 }

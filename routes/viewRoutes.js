@@ -1,9 +1,70 @@
 const express = require('express');
-const { getOverview, getTour } = require('../controllers/viewController');
+const {
+  getOverview,
+  getTour,
+  getLoginForm,
+  getAccount,
+  updateUserData,
+  updateUserPassword,
+} = require('../controllers/viewController');
+const multer = require('multer');
+const multerStorage = multer.memoryStorage();
+
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/img/users/');
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//     cb(
+//       null,
+//       req.user.id +
+//         '-' +
+//         file.fieldname +
+//         '-' +
+//         uniqueSuffix +
+//         '.' +
+//         file.mimetype.split('/')[1]
+//     );
+//   },
+// });
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    return cb(null, true);
+  } else {
+    return cb(
+      new AppError(
+        'Not a image file ! please upload an image file',
+        codes.BAD_REQUEST,
+        false
+      ),
+      false
+    );
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 const { catchAsync } = require('../helpers/utils');
+const { isLoggedIn, isAuthenticated } = require('../middlewares');
+const { AppError } = require('../helpers/error');
+const { codes } = require('../helpers/constants');
+const middlewares = require('../middlewares');
 const router = express.Router();
-router.get('/', catchAsync(getOverview));
-
-router.get('/tours/:slug', catchAsync(getTour));
-
+router.get('/overview', isLoggedIn, catchAsync(getOverview));
+router.get('/tours/:slug', isLoggedIn, catchAsync(getTour));
+router.get('/me', isAuthenticated, getAccount);
+router.get('/', catchAsync(getLoginForm));
+router.post(
+  '/submit-user-data',
+  isAuthenticated,
+  upload.single('avatar'),
+  middlewares.resizePhoto,
+  catchAsync(updateUserData)
+);
+router.post(
+  '/update-password',
+  isAuthenticated,
+  catchAsync(updateUserPassword)
+);
 module.exports = router;
