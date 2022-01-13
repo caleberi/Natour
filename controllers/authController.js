@@ -8,6 +8,45 @@ const _ = require('lodash');
 const otpGenerator = require('otp-generator');
 const { codes, messages, errorType } = require('../helpers/constants');
 const { createfn } = require('../factories/dbFactoryHandlers');
+
+async function resolveJWT(token, req, res, next) {
+  try {
+    let user = await util.verifyTokenWithJWT(token);
+    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
+
+    if (isExpired) {
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    }
+    let foundUser = await db.findById(user.id);
+    if (!foundUser) {
+      return next(
+        new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+      );
+    }
+    if (foundUser.checkLastPasswordModificationDate(user.iat)) {
+      return next(
+        new AppError(messages.PASSWORD_CHANGED, codes.UNAUTHORIZED, false)
+      );
+    }
+    req.user = user;
+    res.locals = {};
+    res.locals.user = foundUser;
+    return next();
+  } catch (err) {
+    console.log(err);
+    if (err.name === errorType.TOKEN_EXPIRED_ERROR)
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    if (err.name === errorType.NOT_BEFORE_ERROR)
+      return next(new AppError(messages.INACTIVE_JWT, codes.BAD_REQUEST, true));
+    return next(
+      new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
+    );
+  }
+}
 //✅
 exports.signup = async (req, res, next) => {
   const payload = util.allowOnlySpecifiedField(
