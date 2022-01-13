@@ -25,13 +25,21 @@ const userSchema = mongoose.Schema(
     photo: String,
     role: {
       type: String,
-      enum: [roles.C_ADMIN, roles.C_TOUR_GUIDE, roles.C_LEAD_GUIDE, roles.C_USER],
+      enum: [
+        roles.C_ADMIN,
+        roles.C_TOUR_GUIDE,
+        roles.C_LEAD_GUIDE,
+        roles.C_USER,
+      ],
       default: roles.C_USER,
     },
     password: {
       type: String,
       required: [true, 'Please provide a password'],
-      validate: [validator.isStrongPassword, 'Please provide a strong password'],
+      validate: [
+        validator.isStrongPassword,
+        'Please provide a strong password',
+      ],
       minlength: 8,
       selected: false,
     },
@@ -93,7 +101,10 @@ userSchema.statics.verifyPassword = async function (
 };
 userSchema.methods.checkLastPasswordModificationDate = function (JWTTimestamp) {
   if (this.lastPasswordModifiedAt) {
-    const changedTimeStamp = parseInt(this.lastPasswordModifiedAt.getTime() / 1000, 10);
+    const changedTimeStamp = parseInt(
+      this.lastPasswordModifiedAt.getTime() / 1000,
+      10
+    );
     return JWTTimestamp < changedTimeStamp;
   }
 };
