@@ -77,10 +77,20 @@ userSchema.pre(/^find/, function (next) {
   this.find({ active: true });
   next();
 });
-userSchema.statics.verifyPassword = async function (candidatePassword, userPassword) {
+
+userSchema.methods.verifyPassword = async function (
+  candidatePassword,
+  userPassword
+) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+userSchema.statics.verifyPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 userSchema.methods.checkLastPasswordModificationDate = function (JWTTimestamp) {
   if (this.lastPasswordModifiedAt) {
     const changedTimeStamp = parseInt(this.lastPasswordModifiedAt.getTime() / 1000, 10);
