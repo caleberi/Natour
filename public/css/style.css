@@ -1,3 +1,28 @@
+/************ additional css *******/
+p.no__tour_guide {
+  padding: 0px 10px 0px;
+  font-size: 17px;
+}
+.no__reviews {
+  padding: 0px 10px 0px;
+  font-size: 36px;
+}
+.reviews::-webkit-scrollbar {
+  display: none;
+}
+
+label[for='upload_profile'] {
+  background-color: #55c57a;
+  color: #fff;
+  padding: 0.6rem;
+  border-radius: 10rem;
+  text-transform: uppercase;
+  display: inline-block;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+/***********************************/
 :root {
   --section-rotate: 9vw;
 }
@@ -830,6 +855,7 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  justify-content: flex-end;
 }
 .footer__nav li {
   margin-left: 1.5rem;
