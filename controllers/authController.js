@@ -110,33 +110,8 @@ exports.isAuthenticated = async (req, res, next) => {
     if (tokenType === 'Bearer' && token) {
       return await resolveJWT(token, req, res, next);
     }
-      let foundUser = await db.findById(user.id);
-      if (!foundUser) {
-        return next(
-          new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
-        );
   }
-      if (foundUser.checkLastPasswordModificationDate(user.iat)) {
-        return next(
-          new AppError(messages.PASSWORD_CHANGED, codes.UNAUTHORIZED, false)
-        );
-      }
-      req.user = user;
-      return next();
-    } catch (err) {
-      if (err.name === errorType.TOKEN_EXPIRED_ERROR)
-        return next(
-          new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
-        );
-      if (err.name === errorType.NOT_BEFORE_ERROR)
-        return next(
-          new AppError(messages.INACTIVE_JWT, codes.BAD_REQUEST, true)
-        );
-      return next(
-        new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
-      );
-    }
-  }
+
   return next(
     new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
   );
@@ -199,7 +174,7 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updateUserPassword = async (req, res, next) => {
   const user = await db.findById(req.params.id).select('+password');
-  const { oldPassword, newPasword, newPaswordConfirm } = req.body;
+  const { oldPassword, newPassword, newPasswordConfirm } = req.body;
   if (!(await user.verifyPassword(oldPassword, user.password))) {
     return next(
       new ValidationError(
@@ -209,8 +184,8 @@ exports.updateUserPassword = async (req, res, next) => {
       )
     );
   }
-  user.password = newPasword;
-  user.passwordConfirm = newPaswordConfirm;
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
   await user.save();
   return util.createSendWithToken(user, codes.OK, res);
 };
