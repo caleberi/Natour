@@ -97,6 +97,9 @@ exports.isAuthenticated = async (req, res, next) => {
     }
     return next();
   }
+  if (req.cookies.jwt) {
+    return await resolveJWT(req.cookies.jwt, req, res, next);
+  }
   if (!req.headers.authorization) {
     return next(
       new AppError(messages.AUTH_KEY_PROVISION, codes.BAD_REQUEST, false)
