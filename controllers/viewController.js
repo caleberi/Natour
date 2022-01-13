@@ -17,8 +17,16 @@ exports.getOverview = async (req, res) => {
 };
 
 exports.getTour = async (req, res) => {
-  const tour = await tourDB.findOne({ slug: req.params.slug });
-  res.status(200).render('tour', {
+  const tour = await tourDB.findOne({ slug: req.params.slug }).populate({
+    path: 'reviews',
+    field: 'review rating user',
+  });
+  if (!tour) {
+    return next(
+      new AppError(messages.NO_ENTITY(req.params.slug), codes.NOT_FOUND, false)
+    );
+  }
+  res.status(codes.OK).render('tour', {
     title: tour.name,
     tour,
   });
