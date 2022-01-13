@@ -26,4 +26,34 @@ module.exports = {
     if (!req.body.user) req.body.user = req.user.id;
     next();
   },
+  isLoggedIn(req, res, next) {
+    return catchAsync(isLoggedIn(req, res, next));
+  },
+  resizePhoto(req, res, next) {
+    if (!req.file) return next();
+    const userId = req.user.id;
+    const fieldname = req.file.fieldname;
+    const createdAt = Date.now();
+    const extension = req.file.mimetype.split('/')[1];
+    const filename = `${
+      userId + '-' + fieldname + '-' + createdAt + '.' + extension
+    }`;
+    const dirpath = path.resolve(__dirname, '../public/img/users');
+    removePreviousAssociateProfileName(dirpath, {
+      userId,
+      latestFileTime: createdAt,
+    });
+    Jimp.read(req.file.buffer, (err, image) => {
+      if (err)
+        return next(
+          new AppError('Could not resize image', codes.INTERNAL_SERVER, true)
+        );
+      image
+        .resize(config.imageHeight, config.imageWidth)
+        .quality(config.imageQuality)
+        .write(path.join(dirpath, `./${filename}`));
+    });
+    req.file.filename = filename;
+    next();
+  },
 };
