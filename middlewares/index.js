@@ -1,9 +1,18 @@
+const { resolve } = require('path');
+const Jimp = require('jimp');
+const config = require('../config');
 const {
   isAuthenticated,
   isAuthorized,
+  isLoggedIn,
 } = require('../controllers/authController');
 const { catchAsync } = require('../helpers/utils');
-
+const { AppError } = require('../helpers/error');
+const { codes } = require('../helpers/constants');
+const path = require('path');
+const {
+  removePreviousAssociateProfileName,
+} = require('../helpers/fileHandler');
 module.exports = {
   aliasTopTours(req, res, next) {
     req.query.limit = '5';
