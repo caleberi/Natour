@@ -104,26 +104,18 @@ exports.isAuthenticated = async (req, res, next) => {
     return next(
       new AppError(messages.AUTH_KEY_PROVISION, codes.BAD_REQUEST, false)
     );
-  }
-  const { authorization } = req.headers;
-  const [tokenType, token] = authorization.split(' ');
-  if (tokenType === 'Bearer' && token) {
-    try {
-      let user = await util.verifyTokenWithJWT(token);
-
-      let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
-
-      if (isExpired) {
-        return next(
-          new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
-        );
-      }
+  } else {
+    const { authorization } = req.headers;
+    const [tokenType, token] = authorization.split(' ');
+    if (tokenType === 'Bearer' && token) {
+      return await resolveJWT(token, req, res, next);
+    }
       let foundUser = await db.findById(user.id);
       if (!foundUser) {
         return next(
           new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
         );
-      }
+  }
       if (foundUser.checkLastPasswordModificationDate(user.iat)) {
         return next(
           new AppError(messages.PASSWORD_CHANGED, codes.UNAUTHORIZED, false)
