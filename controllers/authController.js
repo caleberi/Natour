@@ -279,3 +279,41 @@ exports.resetPasswordWithOTP = async (req, res, next) => {
     .status(codes.OK)
     .json(util.createSendWithToken(user, codes.OK, res));
 };
+
+exports.isLoggedIn = async (req, res, next) => {
+  if (req.cookies.jwt) {
+    let user = await util.verifyTokenWithJWT(req.cookies.jwt);
+    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
+    if (isExpired) {
+      return next(
+        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+      );
+    }
+
+    let foundUser = await db.findById(user.id);
+    console.log(foundUser);
+    if (!foundUser) {
+      return next(
+        new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+      );
+    }
+    res.locals.user = foundUser;
+    return next();
+  } else {
+    return next(
+      new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
+    );
+  }
+};
+
+exports.logout = (req, res, next) => {
+  try {
+    res.cookie('jwt', 'logging user out', {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: true,
+    });
+    return res.status(codes.OK).json(util.createSuccessResponse({}));
+  } catch (err) {
+    next(err);
+  }
+};
