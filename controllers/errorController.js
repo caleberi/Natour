@@ -22,6 +22,9 @@ const handleDuplicateFields = (err) =>
     )
   );
 
+function renderErrorPage(res, code, err) {
+  return res.status(code).render('error', err);
+}
 module.exports = (err, req, res, next) => {
   if (err.isOperational) {
     console.log(err);
