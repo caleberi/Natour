@@ -43,7 +43,7 @@ const importData = async (model, payload) => {
     data.forEach(async (dt) => {
       try {
         delete dt.id;
-        await model.create(dt);
+        await model.create(dt, { runValidators: false });
       } catch (err) {
         console.log(err);
       }
