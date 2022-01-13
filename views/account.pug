@@ -1,0 +1,61 @@
+extends  base
+
+
+mixin navigation_bar_item(title,icon,link,active)
+    li(class=`${active?'side-nav--active':''}`)
+        a(href=`${link}`)
+            svg
+                use(xlink:href=`img/icons.svg#${icon}`)
+            | #{title}  
+
+block content 
+    main.main
+        .user-view
+            nav.user-view__menu
+                ul.side-nav
+                    - let data = [{'link':'#','icon':'icon-settings','title':'Settings','active':true},{'link':'#','icon':'icon-briefcase','title':'My bookings','active':false},{'link':'#','icon':'icon-star','title':'My reviews','active':false},{'link':'#','icon':'icon-credit-card','title':'Billing','active':false}]
+                    each dt in data 
+                        +navigation_bar_item(dt.title,dt.icon,dt.link,dt.active)
+                - const isAdmin = user.role == "Admin";
+                if isAdmin
+                    .admin-nav
+                        h5.admin-nav__heading Admin
+                        ul.side-nav
+                            -let data = [{'link':'#','icon':'icon-map','title':'Manage tours','active':false},{'link':'#','icon':'icon-users','title':'Manage users','active':false},{'link':'#','icon':'icon-star','title':'Manage reviews','active':false},{'link':'#','icon':'icon-briefcase','title':'','active':false}]
+                            each dt in data 
+                                +navigation_bar_item(dt.title,dt.icon,dt.link,dt.active)
+
+
+            .user-view__content
+                .user-view__form-container
+                    h2.heading-secondary.ma-bt-md Your account settings
+                    form.form.form-user-data(action='/submit-user-data',method='POST' ,enctype="multipart/form-data")
+                        .form__group
+                            label.form__label(for='name') Name
+                            input#name.form__input(type='text', value=`${user.name}`, name="name",required)
+                        .form__group.ma-bt-md
+                            label.form__label(for='email') Email address
+                            input#email.form__input(type='email', value=`${user.email}`,name="email", required)
+                        .form__group.form__photo-upload
+                            img.form__user-photo(src=`img/users/${user.photo}`, name="photo",alt='#{user.name}')
+                            label(for="upload_profile") Choose File
+                            input#upload_profile(type="file", name="avatar",value="Choose new photo" ,hidden) 
+                        .form__group.right
+                            button.btn.btn--small.btn--green Save settings
+
+                .line &nbsp;
+
+                .user-view__form-container
+                    h2.heading-secondary.ma-bt-md Password change
+                    form.form.form-user-settings(action='/update-password',method='POST')
+                        .form__group
+                            label.form__label(for='password-current') Current password
+                            input#password-current.form__input(type='password', placeholder='••••••••',name='oldPassword' ,required, minlength='8')
+                        .form__group
+                            label.form__label(for='password') New password
+                            input#password.form__input(type='password', placeholder='••••••••',name='newPassword' ,required, minlength='8')
+                        .form__group.ma-bt-lg
+                            label.form__label(for='password-confirm') Confirm password
+                            input#password-confirm.form__input(type='password', placeholder='••••••••', name='newPasswordConfirm',required, minlength='8')
+                        .form__group.right
+                            button.btn.btn--small.btn--green Save password
