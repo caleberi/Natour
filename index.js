@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const app = require('./app');
 const { Server } = require('socket.io');
 const http = require('http');
+const { messages } = require('./helpers/constants');
 const globalErrorHandler = require('./controllers/errorController');
 const { AppError } = require('./helpers/error');
 const server = http.createServer(app);

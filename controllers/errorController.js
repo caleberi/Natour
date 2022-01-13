@@ -42,6 +42,11 @@ module.exports = (err, req, res, next) => {
     }
     return res
       .status(err.statusCode)
-      .json(createFailureResponse({ ...err, message: err.message }));
+      .json(
+        createFailureResponse({
+          ...err,
+          message: err.message ? err.message : null,
+        })
+      );
   }
 };
