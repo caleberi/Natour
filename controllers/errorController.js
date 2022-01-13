@@ -26,8 +26,18 @@ function renderErrorPage(res, code, err) {
   return res.status(code).render('error', err);
 }
 module.exports = (err, req, res, next) => {
+  const startwithAPI = req.originalUrl.startsWith('/api');
   if (err.isOperational) {
     console.log(err);
+    if (!startwithAPI) {
+      return renderErrorPage(
+        res,
+        codes.INTERNAL_SERVER,
+        createFailureResponse({
+          message: 'Something went wrong',
+        })
+      );
+    }
     return res.status(codes.INTERNAL_SERVER).json(
       createFailureResponse({
         message: 'Something went wrong',
@@ -43,13 +53,20 @@ module.exports = (err, req, res, next) => {
       if (err.code === 11000) err = handleDuplicateFields(err);
       if (err.stack) delete err.stack;
     }
-    return res
-      .status(err.statusCode)
-      .json(
+    if (!startwithAPI) {
+      return renderErrorPage(
+        res,
+        codes.INTERNAL_SERVER,
         createFailureResponse({
-          ...err,
-          message: err.message ? err.message : null,
+          message: 'Something went wrong',
         })
       );
+    }
+    return res.status(err.statusCode).json(
+      createFailureResponse({
+        ...err,
+        message: err.message ? err.message : null,
+      })
+    );
   }
 };
