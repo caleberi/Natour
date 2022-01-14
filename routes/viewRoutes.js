@@ -59,7 +59,10 @@ router.post(
   '/submit-user-data',
   isAuthenticated,
   upload.single('avatar'),
-  middlewares.resizePhoto,
+  middlewares.resizePhoto({
+    single: true,
+    multiple: false,
+  }),
   catchAsync(updateUserData)
 );
 router.post(
