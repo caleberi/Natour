@@ -39,7 +39,7 @@ block content
                         .form__group.form__photo-upload
                             img.form__user-photo(src=`img/users/${user.photo}`, name="photo",alt='#{user.name}')
                             label(for="upload_profile") Choose File
-                            input#upload_profile(type="file", name="avatar",value="Choose new photo" ,hidden) 
+                            input#upload_profile(type="file",accept='image/*' ,name="avatar",value="Choose new photo" ,hidden) 
                         .form__group.right
                             button.btn.btn--small.btn--green Save settings
 
@@ -50,12 +50,12 @@ block content
                     form.form.form-user-settings(action='/update-password',method='POST')
                         .form__group
                             label.form__label(for='password-current') Current password
-                            input#password-current.form__input(type='password', placeholder='••••••••',name='oldPassword' ,required, minlength='8')
+                            input#password-current.form__input(type='password', placeholder='••••••••',name='oldPassword' ,autocomplete="current-password",required, minlength='8')
                         .form__group
                             label.form__label(for='password') New password
-                            input#password.form__input(type='password', placeholder='••••••••',name='newPassword' ,required, minlength='8')
+                            input#password.form__input(type='password', placeholder='••••••••',name='newPassword',autocomplete="new-password" ,required, minlength='8')
                         .form__group.ma-bt-lg
                             label.form__label(for='password-confirm') Confirm password
-                            input#password-confirm.form__input(type='password', placeholder='••••••••', name='newPasswordConfirm',required, minlength='8')
+                            input#password-confirm.form__input(type='password', placeholder='••••••••', name='newPasswordConfirm',required,autocomplete="new-password", minlength='8')
                         .form__group.right
                             button.btn.btn--small.btn--green Save password
