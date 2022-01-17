@@ -75,6 +75,7 @@ router.post(
   }),
   catchAsync(updateUserData)
 );
+router.post('/submit-registration-data', catchAsync(signup));
 router.post(
   '/update-password',
   isAuthenticated,
