@@ -55,6 +55,9 @@ router.get('/overview', isLoggedIn, catchAsync(getOverview));
 router.get('/tours/:slug', isLoggedIn, catchAsync(getTour));
 router.get('/me', isAuthenticated, getAccount);
 router.get('/', catchAsync(getLoginForm));
+router.get('/signup', getSignupForm);
+router.get('/my-tours', isAuthenticated, catchAsync(getMyTour));
+
 router.post(
   '/submit-user-data',
   isAuthenticated,
