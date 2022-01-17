@@ -12562,8 +12562,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
                             1200
                           );
                           window.setTimeout(function () {
-                            window.location.href =
-                              'http://localhost:3000/overview';
+                            location.assign('/overview');
                           }, 1500);
                         }
 
@@ -12621,24 +12620,24 @@ parcelRequire = (function (modules, cache, entry, globalName) {
                             1200
                           );
                           window.setTimeout(function () {
-                            window.location.href = 'http://localhost:3000/';
+                            location.reload(true);
                           }, 1500);
                         }
 
-                        _context.next = 12;
+                        _context.next = 11;
                         break;
 
                       case 7:
                         _context.prev = 7;
                         _context.t0 = _context['catch'](0);
-                        console.log('*****');
                         console.log(_context.t0);
-                        (0, _alerts.showAlert)(
-                          'error',
-                          'Error logging out ! try again '
+                        (0, _alerts.hideAlert)(
+                          'failure',
+                          'Error logging out ! try again ',
+                          1200
                         );
 
-                      case 12:
+                      case 11:
                       case 'end':
                         return _context.stop();
                     }
@@ -12671,47 +12670,188 @@ parcelRequire = (function (modules, cache, entry, globalName) {
         exports.displayMap = void 0;
 
         var displayMap = function displayMap(locations) {
-          mapboxgl.accessToken =
-            'pk.eyJ1Ijoiam9uYXNzY2htZWR0bWFubiIsImEiOiJjam54ZmM5N3gwNjAzM3dtZDNxYTVlMnd2In0.ytpI7V7w7cyT1Kq5rT9Z1A';
-          var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/jonasschmedtmann/cjvi9q8jd04mi1cpgmg7ev3dy', // center:[-74.5,40],
-            // zoom :9
-          });
-          var bounds = new mapboxgl.LngLatBounds();
-          locations.forEach(function (loc) {
-            // create marker for rendering
-            var el = $d.createElement('div');
-            el.className = 'marker'; // add marker
+          try {
+            mapboxgl.accessToken =
+              'pk.eyJ1Ijoiam9uYXNzY2htZWR0bWFubiIsImEiOiJjam54ZmM5N3gwNjAzM3dtZDNxYTVlMnd2In0.ytpI7V7w7cyT1Kq5rT9Z1A';
+            var map = new mapboxgl.Map({
+              container: 'map',
+              style:
+                'mapbox://styles/jonasschmedtmann/cjvi9q8jd04mi1cpgmg7ev3dy', // center:[-74.5,40],
+              // zoom :9
+            });
+            var bounds = new mapboxgl.LngLatBounds();
+            locations.forEach(function (loc) {
+              if (!loc.coordinates) return; // create marker for rendering
 
-            new mapboxgl.Marker({
-              element: el,
-              anchor: 'bottom',
-            })
-              .setLngLat(loc.coordinates)
-              .addTo(map); // add popup
+              var el = document.createElement('div');
+              el.className = 'marker'; // add marker
 
-            new mapboxgl.Popup()
-              .setLngLat(loc.coordinates)
-              .setHTML(
-                '<p>Day '.concat(loc.day, ': ').concat(loc.description, '</p>')
-              )
-              .addTo(map);
-            bounds.extends(loc.coordinates);
-          });
-          map.fitBounds(bounds, {
-            padding: {
-              top: 200,
-              bottom: 200,
-              right: 100,
-              left: 100,
-            },
-          });
+              new mapboxgl.Marker({
+                element: el,
+                anchor: 'bottom',
+              })
+                .setLngLat(loc.coordinates)
+                .addTo(map); // add popup
+
+              new mapboxgl.Popup()
+                .setLngLat(loc.coordinates)
+                .setHTML(
+                  '<p>Day '
+                    .concat(loc.day, ': ')
+                    .concat(loc.description, '</p>')
+                )
+                .addTo(map);
+              bounds.extends(loc.coordinates);
+            });
+            if (bounds)
+              map.fitBounds(bounds, {
+                padding: {
+                  top: 200,
+                  bottom: 200,
+                  right: 100,
+                  left: 100,
+                },
+              });
+          } catch (err) {
+            console.log(err);
+          }
         };
 
         exports.displayMap = displayMap;
       },
       {},
+    ],
+    'stripe.js': [
+      function (require, module, exports) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.bookTour = void 0;
+
+        var _axios = _interopRequireDefault(require('axios'));
+
+        var _alerts = require('./alerts');
+
+        function _interopRequireDefault(obj) {
+          return obj && obj.__esModule ? obj : { default: obj };
+        }
+
+        function asyncGeneratorStep(
+          gen,
+          resolve,
+          reject,
+          _next,
+          _throw,
+          key,
+          arg
+        ) {
+          try {
+            var info = gen[key](arg);
+            var value = info.value;
+          } catch (error) {
+            reject(error);
+            return;
+          }
+          if (info.done) {
+            resolve(value);
+          } else {
+            Promise.resolve(value).then(_next, _throw);
+          }
+        }
+
+        function _asyncToGenerator(fn) {
+          return function () {
+            var self = this,
+              args = arguments;
+            return new Promise(function (resolve, reject) {
+              var gen = fn.apply(self, args);
+              function _next(value) {
+                asyncGeneratorStep(
+                  gen,
+                  resolve,
+                  reject,
+                  _next,
+                  _throw,
+                  'next',
+                  value
+                );
+              }
+              function _throw(err) {
+                asyncGeneratorStep(
+                  gen,
+                  resolve,
+                  reject,
+                  _next,
+                  _throw,
+                  'throw',
+                  err
+                );
+              }
+              _next(undefined);
+            });
+          };
+        }
+
+        var stripe = Stripe(
+          'pk_test_51KHoFOLRRKMMK7b9MJ7fzWYzapkohdnZk96shxrCt4H2kAurVN9U7dX97AOgMNdWTYMUya3luLEPeJnmT61SHk7o003pYp3ZYE'
+        );
+
+        var bookTour = /*#__PURE__*/ (function () {
+          var _ref = _asyncToGenerator(
+            /*#__PURE__*/ regeneratorRuntime.mark(function _callee(tourId) {
+              var session;
+              return regeneratorRuntime.wrap(
+                function _callee$(_context) {
+                  while (1) {
+                    switch ((_context.prev = _context.next)) {
+                      case 0:
+                        _context.prev = 0;
+                        _context.next = 3;
+                        return (0, _axios.default)(
+                          '/api/v1/bookings/checkout-session/'.concat(tourId)
+                        );
+
+                      case 3:
+                        session = _context.sent;
+                        console.log(session);
+                        _context.next = 7;
+                        return stripe.redirectToCheckout({
+                          sessionId: session.data.id,
+                        });
+
+                      case 7:
+                        _context.next = 13;
+                        break;
+
+                      case 9:
+                        _context.prev = 9;
+                        _context.t0 = _context['catch'](0);
+                        console.log(_context.t0);
+                        (0, _alerts.showAlert)('error', _context.t0, 1200);
+
+                      case 13:
+                      case 'end':
+                        return _context.stop();
+                    }
+                  }
+                },
+                _callee,
+                null,
+                [[0, 9]]
+              );
+            })
+          );
+
+          return function bookTour(_x) {
+            return _ref.apply(this, arguments);
+          };
+        })();
+
+        exports.bookTour = bookTour;
+      },
+      { axios: '../../node_modules/axios/index.js', './alerts': 'alerts.js' },
     ],
     'index.js': [
       function (require, module, exports) {
@@ -12985,10 +13125,68 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
         var _mapbox = require('./mapbox');
 
-        var $d = document;
-        var mapBox = $d.getElementById('map');
-        var loginForm = $d.querySelector('#login-form');
-        var logoutBtn = $d.querySelector('.nav__el--logout');
+        var _stripe = require('./stripe');
+
+        function asyncGeneratorStep(
+          gen,
+          resolve,
+          reject,
+          _next,
+          _throw,
+          key,
+          arg
+        ) {
+          try {
+            var info = gen[key](arg);
+            var value = info.value;
+          } catch (error) {
+            reject(error);
+            return;
+          }
+          if (info.done) {
+            resolve(value);
+          } else {
+            Promise.resolve(value).then(_next, _throw);
+          }
+        }
+
+        function _asyncToGenerator(fn) {
+          return function () {
+            var self = this,
+              args = arguments;
+            return new Promise(function (resolve, reject) {
+              var gen = fn.apply(self, args);
+              function _next(value) {
+                asyncGeneratorStep(
+                  gen,
+                  resolve,
+                  reject,
+                  _next,
+                  _throw,
+                  'next',
+                  value
+                );
+              }
+              function _throw(err) {
+                asyncGeneratorStep(
+                  gen,
+                  resolve,
+                  reject,
+                  _next,
+                  _throw,
+                  'throw',
+                  err
+                );
+              }
+              _next(undefined);
+            });
+          };
+        }
+
+        var mapBox = document.getElementById('map');
+        var loginForm = document.querySelector('#login-form');
+        var logoutBtn = document.querySelector('.nav__el--logout');
+        var bookBtn = document.getElementById('book-tour');
 
         if (mapBox) {
           var locations = JSON.parse(mapBox.dataset.locations);
@@ -12998,14 +13196,46 @@ parcelRequire = (function (modules, cache, entry, globalName) {
         if (loginForm)
           loginForm.addEventListener('submit', function (event) {
             event.preventDefault();
-            var email = $d.getElementById('email').value;
-            var password = $d.getElementById('password').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
             (0, _login.login)({
               email: email,
               password: password,
             });
           });
         if (logoutBtn) logoutBtn.addEventListener('click', _login.logout);
+
+        if (bookBtn) {
+          bookBtn.addEventListener(
+            'click',
+            /*#__PURE__*/ (function () {
+              var _ref = _asyncToGenerator(
+                /*#__PURE__*/ regeneratorRuntime.mark(function _callee(e) {
+                  var tourId;
+                  return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch ((_context.prev = _context.next)) {
+                        case 0:
+                          e.target.textContent = 'Processing';
+                          tourId = e.target.dataset.tourId;
+                          _context.next = 4;
+                          return (0, _stripe.bookTour)(tourId);
+
+                        case 4:
+                        case 'end':
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                })
+              );
+
+              return function (_x) {
+                return _ref.apply(this, arguments);
+              };
+            })()
+          );
+        }
       },
       {
         'core-js/modules/es6.array.copy-within.js':
@@ -13274,6 +13504,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
           '../../node_modules/regenerator-runtime/runtime.js',
         './login': 'login.js',
         './mapbox': 'mapbox.js',
+        './stripe': 'stripe.js',
       },
     ],
     '../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js': [
@@ -13309,7 +13540,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
           var hostname = '' || location.hostname;
           var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
           var ws = new WebSocket(
-            protocol + '://' + hostname + ':' + '50424' + '/'
+            protocol + '://' + hostname + ':' + '61858' + '/'
           );
 
           ws.onmessage = function (event) {

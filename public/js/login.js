@@ -4,7 +4,7 @@ export async function login({ email, password }) {
   try {
     const res = await axios({
       method: 'post',
-      url: 'http://localhost:3000/api/v1/users/login',
+      url: '/api/v1/users/login',
       data: {
         email: email,
         password: password,
@@ -13,7 +13,7 @@ export async function login({ email, password }) {
     if (res.data.status === 'success') {
       showAlert('success', 'Logged in successfully', 1200);
       window.setTimeout(() => {
-        window.location.href = 'http://localhost:3000/overview';
+        location.assign('/overview');
       }, 1500);
     }
   } catch (err) {
@@ -25,17 +25,17 @@ export const logout = async () => {
   try {
     const res = await axios({
       method: 'get',
-      url: 'http://localhost:3000/api/v1/users/logout',
+      url: '/api/v1/users/logout',
     });
     if (res.data.status === 'success') {
       // location.reload(true);
       showAlert('success', 'Logged out successfully', 1200);
       window.setTimeout(() => {
-        window.location.href = 'http://localhost:3000/';
+        location.reload(true);
       }, 1500);
     }
   } catch (err) {
     console.log(err);
-    showAlert('error', 'Error logging out ! try again ');
+    hideAlert('failure', 'Error logging out ! try again ', 1200);
   }
 };

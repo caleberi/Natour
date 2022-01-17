@@ -6,6 +6,7 @@ const { codes, messages } = require('../helpers/constants');
 const { createSuccessResponse } = require('../helpers/utils');
 const { isLatLong, isNumeric } = require('validator').default;
 const config = require('../config');
+const Jimp = require('jimp');
 const {
   createfn,
   deletefn,

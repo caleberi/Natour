@@ -2,8 +2,10 @@ const express = require('express');
 const {
   getOverview,
   getTour,
+  getMyTour,
   getLoginForm,
   getAccount,
+  getSignupForm,
   updateUserData,
   updateUserPassword,
 } = require('../controllers/viewController');
@@ -50,18 +52,32 @@ const { isLoggedIn, isAuthenticated } = require('../middlewares');
 const { AppError } = require('../helpers/error');
 const { codes } = require('../helpers/constants');
 const middlewares = require('../middlewares');
+const { createBookingCheckout } = require('../controllers/bookingController');
+const { signup } = require('../controllers/authController');
 const router = express.Router();
-router.get('/overview', isLoggedIn, catchAsync(getOverview));
+router.get(
+  '/overview',
+  createBookingCheckout,
+  isLoggedIn,
+  catchAsync(getOverview)
+);
 router.get('/tours/:slug', isLoggedIn, catchAsync(getTour));
 router.get('/me', isAuthenticated, getAccount);
 router.get('/', catchAsync(getLoginForm));
+router.get('/signup', getSignupForm);
+router.get('/my-tours', isAuthenticated, catchAsync(getMyTour));
+
 router.post(
   '/submit-user-data',
   isAuthenticated,
   upload.single('avatar'),
-  middlewares.resizePhoto,
+  middlewares.resizePhoto({
+    single: true,
+    multiple: false,
+  }),
   catchAsync(updateUserData)
 );
+router.post('/submit-registration-data', catchAsync(signup));
 router.post(
   '/update-password',
   isAuthenticated,
