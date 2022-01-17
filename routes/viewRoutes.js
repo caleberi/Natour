@@ -2,8 +2,10 @@ const express = require('express');
 const {
   getOverview,
   getTour,
+  getMyTour,
   getLoginForm,
   getAccount,
+  getSignupForm,
   updateUserData,
   updateUserPassword,
 } = require('../controllers/viewController');
