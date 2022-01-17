@@ -50,6 +50,8 @@ const { isLoggedIn, isAuthenticated } = require('../middlewares');
 const { AppError } = require('../helpers/error');
 const { codes } = require('../helpers/constants');
 const middlewares = require('../middlewares');
+const { createBookingCheckout } = require('../controllers/bookingController');
+const { signup } = require('../controllers/authController');
 const router = express.Router();
 router.get(
   '/overview',
