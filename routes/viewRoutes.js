@@ -51,7 +51,12 @@ const { AppError } = require('../helpers/error');
 const { codes } = require('../helpers/constants');
 const middlewares = require('../middlewares');
 const router = express.Router();
-router.get('/overview', isLoggedIn, catchAsync(getOverview));
+router.get(
+  '/overview',
+  createBookingCheckout,
+  isLoggedIn,
+  catchAsync(getOverview)
+);
 router.get('/tours/:slug', isLoggedIn, catchAsync(getTour));
 router.get('/me', isAuthenticated, getAccount);
 router.get('/', catchAsync(getLoginForm));
