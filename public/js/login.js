@@ -28,7 +28,6 @@ export const logout = async () => {
       url: '/api/v1/users/logout',
     });
     if (res.data.status === 'success') {
-      // location.reload(true);
       showAlert('success', 'Logged out successfully', 1200);
       window.setTimeout(() => {
         location.reload(true);
@@ -37,5 +36,24 @@ export const logout = async () => {
   } catch (err) {
     console.log(err);
     hideAlert('failure', 'Error logging out ! try again ', 1200);
+  }
+};
+
+export const forgot = async ({ email }) => {
+  try {
+    const res = await axios({
+      method: 'post',
+      url: '/api/v1/users/forgotPassword',
+      data: { email },
+    });
+    if (res.data.status === 'success') {
+      showAlert('success', `Reset Token Sent to ${email} .`, 1200);
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
+  } catch (err) {
+    console.log(err);
+    hideAlert('failure', 'Error Sending Token ! please try again ', 1200);
   }
 };
