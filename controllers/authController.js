@@ -61,7 +61,15 @@ exports.signup = async (req, res, next) => {
     return next(
       new AppError(messages.EMAIL_ALREADY_EXIST, codes.BAD_REQUEST, false)
     );
-  return await createfn(db, { name: 'User' })(payload, res);
+
+  if (req.originalUrl.startsWith('/api')) {
+    return await createfn(db, { name: 'User', email: true })(payload, res, req);
+  }
+  return await createfn(db, { name: 'User', email: true, template: 'login' })(
+    payload,
+    res,
+    req
+  );
 };
 
 //✅
