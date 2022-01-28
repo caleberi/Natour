@@ -74,6 +74,7 @@ exports.signup = async (req, res, next) => {
 
 //✅
 exports.login = async (req, res, next) => {
+  try {
     const { email, password } = req.body;
     if (!email || !password) {
       return next(
@@ -150,9 +151,8 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     let url = `${req.protocol}://${req.get(
       'host'
-        )}/api/v1/users/resetPassword/${emailResetToken}`,
-      },
-    });
+    )}/resetPassword/${emailResetToken}`;
+    await new Email(user, url).sendPasswordReset();
     return res.status(200).json({
       status: 'success',
       message: 'Token was sent to your email',
@@ -181,7 +181,9 @@ exports.resetPassword = async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await cache.del(token);
   await user.save();
-  return util.createSendWithToken(user, codes.OK, res);
+  return util.createSendWithToken(user, codes.OK, res, null, {
+    template: 'login',
+  });
 };
 
 exports.updateUserPassword = async (req, res, next) => {
@@ -204,6 +206,8 @@ exports.updateUserPassword = async (req, res, next) => {
 
 //✅
 exports.generateOTP = async (req, res, next) => {
+  console.log(req.body.email);
+  console.log(await db.findOne({ email: req.body.email }));
   const user = await db.findOne({ email: req.body.email });
   if (!user)
     return next(new AppError(messages.NOT_FOUND_EMAIL, codes.NOT_FOUND, false));
@@ -228,11 +232,13 @@ exports.generateOTP = async (req, res, next) => {
       10
     );
 
-    return res.status(codes.OK).json(
-      util.createSuccessResponse({
-        message: 'OTP was sent to your registered phoneNumber',
-      })
-    );
+    // return res.status(codes.OK).json(
+    //   util.createSuccessResponse({
+    //     message: 'OTP was sent to your registered phoneNumber',
+    //   }));
+    return util.createSendWithToken(user, codes.OK, res, null, {
+      template: 'reset_password',
+    });
   } catch (err) {
     await cache.del(req.body.email);
     return next(
@@ -257,45 +263,60 @@ exports.resetPasswordWithOTP = async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await cache.del(otp);
   await user.save();
-  return res
-    .status(codes.OK)
-    .json(util.createSendWithToken(user, codes.OK, res));
+  return util.createSendWithToken(user, codes.OK, res, null, {
+    template: 'login',
+  });
 };
 
 exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    let user = await util.verifyTokenWithJWT(req.cookies.jwt);
-    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
-    if (isExpired) {
-      return next(
-        new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
-      );
-    }
+    try {
+      let user = await util.verifyTokenWithJWT(req.cookies.jwt, {
+        refreshToken: false,
+      });
+      let isExpired = util.tokenHasExpired(user, { refresh: false });
+      if (isExpired) {
+        return next(
+          new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
+        );
+      }
 
-    let foundUser = await db.findById(user.id);
-    console.log(foundUser);
-    if (!foundUser) {
+      let foundUser = await db.findById(user.id);
+      if (!foundUser) {
+        return next(
+          new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+        );
+      }
+      req.user = foundUser;
+      res.locals.user = foundUser;
+      return next();
+    } catch (err) {
       return next(
-        new AppError(messages.NOT_FOUND_ID('User'), codes.UNAUTHORIZED, false)
+        new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
       );
     }
-    res.locals.user = foundUser;
-    return next();
   } else {
-    return next(
-      new AppError(messages.UNAUTHORIZED_ACCESS, codes.UNAUTHORIZED, false)
-    );
+    return next();
   }
 };
 
-exports.logout = (req, res, next) => {
-  try {
-    res.cookie('jwt', 'logging user out', {
-      expires: new Date(Date.now() + 10 * 1000),
-      httpOnly: true,
+exports.logout = async (req, res, next) => {
+  if (res.cookies && res.cookies.jwt) {
+    let user = await util.verifyTokenWithJWT(res.cookies.jwt, {
+      refreshToken: false,
     });
-    return res.status(codes.OK).json(util.createSuccessResponse({}));
-  } catch (err) {
-    next(err);
+    let isExpired = util.tokenHasExpired(user);
+    let userStoredToken = await tokenDB.findById(user.id);
+    let refreshUser = await util.verifyTokenWithJWT(userStoredToken.token, {
+      refreshToken: true,
+    });
+    if (isExpired && util.tokenHasExpired(refreshUser)) {
+      await tokenDB.findById({ _id: user.id });
+    }
   }
+  res.cookie('jwt', 'logging user out', {
+    expires: new Date(Date.now() + 100000),
+    httpOnly: true,
+  });
+  return res.status(codes.OK).json(util.createSuccessResponse({}));
 };
