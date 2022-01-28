@@ -41,7 +41,9 @@ const actions = {
       new: true,
       runValidators: true,
     });
-    return util.createSendWithToken(user, codes.OK, res);
+    return util.createSendWithToken(user, codes.OK, res, null, {
+      template: null,
+    });
   },
   async deleteUser(req, res, next) {
     const user = await db.findById(req.params.id).select('+password');
