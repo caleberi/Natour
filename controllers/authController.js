@@ -2,19 +2,19 @@ const db = require('../model/userModel');
 const util = require('../helpers/utils');
 const { AppError } = require('../helpers/error');
 const { cache } = require('../container');
-const { sendEmail } = require('../helpers/email');
+const Email = require('../helpers/email');
 const config = require('../config');
 const _ = require('lodash');
 const otpGenerator = require('otp-generator');
 const { codes, messages, errorType } = require('../helpers/constants');
 const { createfn } = require('../factories/dbFactoryHandlers');
-
+const tokenDB = require('../model/tokenModel');
 async function resolveJWT(token, req, res, next) {
   try {
     let user = await util.verifyTokenWithJWT(token);
-    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
-
+    let isExpired = util.tokenHasExpired(user);
     if (isExpired) {
+      await tokenDB.findByIdAndDelete({ _id: user.id });
       return next(
         new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
       );
