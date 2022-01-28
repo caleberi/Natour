@@ -7,6 +7,8 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
+const compression = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -29,36 +31,39 @@ if (_.isEqual(config.currentEnviroment, environments.DEVELOPMENT)) {
 } else {
   app.use(morgan(tools.LOGGER_TEMPLATE));
 }
-const CSP = 'Content-Security-Policy';
-const POLICY =
-  // "default-src 'self' https://*.mapbox.com;" +
-  "base-uri 'self';block-all-mixed-content;" +
-  "font-src 'self' https: data:;" +
-  "frame-ancestors 'self';" +
-  "img-src http://localhost:3000 'self' blob: data:;" +
-  "object-src 'none';" +
-  "script-src https: cdn.jsdelivr.net cdnjs.cloudflare.com api.mapbox.com 'self' blob: ;" +
-  "script-src-attr 'none';" +
-  "style-src 'self' https: 'unsafe-inline';" +
-  'upgrade-insecure-requests;';
+
 app.use((req, res, next) => {
+  const CSP = 'Content-Security-Policy';
+  const POLICY =
+    // "default-src 'self' https://*.mapbox.com;" +
+    "base-uri 'self';block-all-mixed-content;" +
+    "font-src 'self' https: data:;" +
+    "frame-ancestors 'self';" +
+    `img-src ${req.protocol}://${req.get('host')} 'self' blob: data:;` +
+    "object-src 'none';" +
+    "script-src https: cdn.jsdelivr.net cdnjs.cloudflare.com api.mapbox.com 'self' blob: ;" +
+    "script-src-attr 'none';" +
+    "style-src 'self' https: 'unsafe-inline';" +
+    'upgrade-insecure-requests;';
   res.setHeader(CSP, POLICY);
   res.setHeader('Access-Control-Allow-Origin', ' *');
   next();
 });
 
-app.use(
+app.use((req, res, next) => {
   cors({
-    origin: 'http://localhost:3000/*',
+    origin: `${req.protocol}://${req.get('host')}/*`,
     optionsSuccessStatus: codes.OK,
-  })
-);
+  });
+  next();
+});
 app.use(
   helmet({
     contentSecurityPolicy: false,
   })
 );
 
+app.use(compression());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ limit: '100kb', extended: true }));
 app.use(cookieParser());
@@ -78,6 +83,7 @@ app.use(`/api/v1`, apiLimiter);
 app.use(`/api/v1/tours`, tourRouter);
 app.use(`/api/v1/users`, userRouter);
 app.use(`/api/v1/reviews`, reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 app.use('/', viewRouter);
 
 module.exports = app;
