@@ -74,21 +74,29 @@ exports.signup = async (req, res, next) => {
 
 //✅
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(
-      new AppError(messages.INVALID_EMAIL_PASSWORD, codes.BAD_REQUEST, false)
-    );
-  }
-
-  const user = await db.findOne({ email }).select('+password');
-  if (user) {
-    if (!(await db.verifyPassword(password, user.password))) {
-      return next(new AppError(messages.INVALID_PASSWORD, codes.BAD_REQUEST));
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(
+        new AppError(messages.INVALID_EMAIL_PASSWORD, codes.BAD_REQUEST, false)
+      );
     }
-    return util.createSendWithToken(user, codes.OK, res);
+
+    const user = await db.findOne({ email }).select('+password');
+    if (user) {
+      if (!(await db.verifyPassword(password, user.password))) {
+        return next(new AppError(messages.INVALID_PASSWORD, codes.BAD_REQUEST));
+      }
+      return util.createSendWithToken(user, codes.OK, res, null, {
+        template: null,
+      });
+    }
+    return next(
+      new AppError(messages.NOT_FOUND_EMAIL, codes.BAD_REQUEST, false)
+    );
+  } catch (err) {
+    console.log(err);
+    return next(err);
   }
-  return next(new AppError(messages.NOT_FOUND_EMAIL, codes.BAD_REQUEST, false));
 };
 
 exports.isAuthenticated = async (req, res, next) => {
