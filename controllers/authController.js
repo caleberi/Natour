@@ -148,12 +148,8 @@ exports.forgotPassword = async (req, res, next) => {
     return next(new AppError(messages.NOT_FOUND_EMAIL, codes.NOT_FOUND, false));
   const emailResetToken = await user.createPasswordResetToken();
   try {
-    await sendEmail({
-      details: {
-        email: user.email,
-        subject: 'Your 10min Email Reset  ',
-        urlResetToken: `${req.protocol}://${req.get(
-          'host'
+    let url = `${req.protocol}://${req.get(
+      'host'
         )}/api/v1/users/resetPassword/${emailResetToken}`,
       },
     });
