@@ -22,6 +22,11 @@ label[for='upload_profile'] {
   cursor: pointer;
   margin-top: 1rem;
 }
+a#forgot_password {
+  text-decoration: none;
+  font-size: 1.2em;
+  padding: 5px;
+}
 /***********************************/
 :root {
   --section-rotate: 9vw;
