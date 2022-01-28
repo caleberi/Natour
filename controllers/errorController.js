@@ -26,6 +26,7 @@ function renderErrorPage(res, code, err) {
   return res.status(code).render('error', err);
 }
 module.exports = (err, req, res, next) => {
+  console.log(err);
   const startwithAPI = req.originalUrl.startsWith('/api');
   if (err.isOperational) {
     console.log(err);
@@ -53,7 +54,7 @@ module.exports = (err, req, res, next) => {
       if (err.code === 11000) err = handleDuplicateFields(err);
       if (err.stack) delete err.stack;
     }
-    if (!startwithAPI) {
+    if (!startwithAPI && req.params.token) {
       return renderErrorPage(
         res,
         codes.INTERNAL_SERVER,
