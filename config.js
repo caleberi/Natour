@@ -20,6 +20,12 @@ const baseConfiguration = {
   jwtExpires: getEnvironmentVariable('JWT_EXPIRES'),
   jwtCookieExpires: parseInt(getEnvironmentVariable('JWT_COOKIE_EXPIRES')),
   jwtAlgorithm: getEnvironmentVariable('JWT_ALGORITHM'),
+  refreshjwtSecret: getEnvironmentVariable('JWT_REFRESH_SECRET'),
+  refreshjwtExpires: getEnvironmentVariable('JWT_REFRESH_EXPIRES'),
+  refreshjwtCookieExpires: parseInt(
+    getEnvironmentVariable('JWT_REFRESH_COOKIE_EXPIRES')
+  ),
+  refreshjwtAlgorithm: getEnvironmentVariable('JWT_REFRESH_ALGORITHM'),
   emailUsername: getEnvironmentVariable('EMAIL_USERNAME'),
   emailPassword: getEnvironmentVariable('EMAIL_PASSWORD'),
   emailHost: getEnvironmentVariable('EMAIL_HOST'),
@@ -50,4 +56,12 @@ module.exports = configuration({
   imageHeight: parseInt(getEnvironmentVariable('IMAGE_HEIGHT')),
   imageWidth: parseInt(getEnvironmentVariable('IMAGE_WIDTH')),
   imageQuality: parseInt(getEnvironmentVariable('IMAGE_QUALITY')),
+  emailSender: getEnvironmentVariable('EMAIL_SENDER'),
+  sendgridUsername: getEnvironmentVariable('SENDGRID_USERNAME'),
+  sendgridPassword: getEnvironmentVariable('SENDGRID_PASSWORD'),
+  stripeSecretKey: getEnvironmentVariable('STRIPE_SECRET_KEY'),
+  stripePublishableKey: getEnvironmentVariable('STRIPE_PUBLISHABLE_KEY'),
+  redisProductionServerUrl: getEnvironmentVariable(
+    'REDIS_PRODUCTION_SERVER_URL'
+  ),
 });

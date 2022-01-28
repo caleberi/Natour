@@ -52,6 +52,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
+    likeCount: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     priceDiscount: Number,
     summary: {
       type: String,
@@ -138,7 +139,6 @@ tourSchema.pre(/^find/, async function (next) {
     path: 'guides',
     select: '-__v -lastPasswordModifiedAt',
   });
-
   next();
 });
 

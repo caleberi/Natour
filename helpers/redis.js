@@ -18,6 +18,7 @@ const redisTemplate = {
           .connect({ url })
           .then(() => console.log('Redis Client Connected'))
           .catch((err) => console.log(err));
+
       return {
         get: getValueFunc.bind(self),
         set: setKeyFunc.bind(self),

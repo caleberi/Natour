@@ -34,6 +34,7 @@ const { AppError } = require('../helpers/error');
 const router = express.Router();
 
 router.use('/:id/reviews', reviewRouter);
+router.use('/:id/bookings', reviewRouter);
 router.route('/').post(catchAsync(createTour)).get(getAllTours);
 router.all('*', middlewares.isAuthenticated);
 

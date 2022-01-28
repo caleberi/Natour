@@ -12,7 +12,7 @@ mixin overview_box(label,text,icon)
 
 mixin guide_overview(guide)
     .overview-box__detail
-        img.overview-box__img(src='/img/users/'+tour.photo, alt=`${guide.role}`)
+        img.overview-box__img(src=`/img/users/${guide.photo}`, alt=`${guide.role}`)
         - if(guide.role=='lead-guide')
             span.overview-box__label Lead guide
         - if(guide.role=='guide')
@@ -56,11 +56,11 @@ block content
                     h2.heading-secondary.ma-bt-lg Quick facts
                     +overview_box('Next date',`${moment(tour.startDates[0]).format("MMM YYYY")}`,'calendar')
                     +overview_box('Difficulty',tour.difficulty,'trending-up')
-                    +overview_box('Partiipants',`${tour.maxGroupSize} people`,'user')
+                    +overview_box('Partipants',`${tour.maxGroupSize} people`,'user')
                     +overview_box('Rating',`${tour.ratingsAverage} / 5`,'star')
                 .overview-box__group
                     h2.heading-secondary.ma-bt-lg Your tour guides
-                    if tour.guide
+                    if tour.guides
                         each guide in tour.guides
                             +guide_overview(guide)
                     else
@@ -91,6 +91,21 @@ block content
             .reviews
                 p.no__reviews No available review for tour
 
+
+        if booked
+            .review-form.hide_review_form
+                form.form.review_form__form(action=`/add-review/${tour.slug}` method='POST')
+                    .form__group
+                        label.form__label(for='review') Content details
+                        textarea.form__input(cols="20", rows="10", placeholder='Senectus lectus eleifend ex lobortis cras nam cursus accumsan tellus lacus faucibus himenaeos posuere!', name='review', required)
+                    .form__group
+                        label.form__label(for='rating') Rating
+                        input.form__input(type='number',placeholder='between 1 and 5 ',name='rating',min=1,max=5,required)
+                    .form__group
+                        button.btn.btn--green Publish Review
+            button.btn.btn--green.span-all-rows.reviews__add__review Give A Review 
+            a.btn.btn--green.span-all-rows.reviews__like__tour(href=`/like/${tour.slug}/${user.id}`)= `😍 Like tour (${tour.likeCount.length}💕)`
+    
     section.section-cta
         .cta
             .cta__img.cta__img--logo
@@ -100,4 +115,12 @@ block content
             .cta__content
                 h2.heading-secondary What are you waiting for?
                 p.cta__text #{tour.duration} days. 1 adventure. Infinite memories. Make it yours today!
-                button.btn.btn--green.span-all-rows Book tour now!
+                - const not_purchased  = user && (!booked)
+                - const purchased =  user && booked 
+
+                if not_purchased
+                    button.btn.btn--green.span-all-rows#book-tour(data-tour-id=`${tour.id}`) Book tour now!
+                else if purchased
+                    button.btn.btn--green.span-all-rows(disabled) Booked
+                else if purchased==false && not_purchased==false
+                    a.btn.btn--green.span-all-rows(href='/') Login to book tour !

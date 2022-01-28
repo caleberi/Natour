@@ -1,7 +1,10 @@
 const cacheFactory = require('./helpers/redis');
 const config = require('./config');
 exports.cache = cacheFactory({
-  url: config.redisServerUrl,
+  url:
+    config.currentEnviroment !== 'production'
+      ? config.redisServerUrl
+      : config.redisProductionServerUrl,
   async getValueFunc(key) {
     try {
       return JSON.parse(await this.client.get(key));

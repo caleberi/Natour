@@ -1,11 +1,9 @@
-const { response } = require('express');
 const { io } = require('socket.io-client');
 const { eventType } = require('./utils/constants');
 const socket = io('http://localhost:3000');
 
 // client-side
 socket.on('connect', () => {
-  console.log(socket.id); // x8WIv7-mJelg7on_ALbx
   let array = [
     'hi',
     'good to see you',
@@ -28,7 +26,6 @@ socket.on('connect', () => {
   socket.on(eventType.CHATSERVER_SENT_MESSAGE, (response) => {
     let parsed = response.msg.to.docs;
     for (let doc of parsed) {
-      console.log('********');
       console.log(doc.name);
     }
   });

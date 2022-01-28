@@ -6,6 +6,15 @@ const { createSuccessResponse } = require('../helpers/utils');
 const { createfn, getAllfn } = require('../factories/dbFactoryHandlers');
 const actions = {
   async getAllReviews(req, res, next) {
+    if (req.OriginalUrl.endsWith('/bookings')) {
+      return res
+        .status(codes.OK)
+        .json(
+          createSuccessResponse({
+            data: await db.find({ tour: req.params.id }),
+          })
+        );
+    }
     return await getAllfn(db, { name: 'reviews' });
   },
   async getReviewsByQuery(req, res, next) {

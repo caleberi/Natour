@@ -4,16 +4,54 @@ const config = require('../config');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
-
+const tokenDB = require('../model/tokenModel');
 function verifyTokenWithJWT(token) {
   return promisify(jwt.verify)(token, config.jwtSecret);
 }
+function tokenHasExpired(user) {
+  return Date.now() - user.exp < config.jwtCookieExpires * 60 * 24 * 60 * 1000;
+}
+function generateAccessToken(user) {
+  return jwt.sign(
+    { id: user._id, role: user.role, email: user.email },
+    config.jwtSecret,
+    {
+      expiresIn: config.jwtExpires,
+      algorithm: config.jwtAlgorithm,
+    }
+  );
+}
 
-function signWithJWT(user) {
-  return jwt.sign({ id: user._id, role: user.role }, config.jwtSecret, {
-    expiresIn: config.jwtExpires,
-    algorithm: config.jwtAlgorithm,
-  });
+async function generateRefreshToken(user) {
+  const rfToken = jwt.sign(
+    { id: user._id, role: user.role, email: user.email },
+    config.refreshjwtSecret,
+    {
+      expiresIn: config.refreshjwtExpires,
+      algorithm: config.refreshjwtAlgorithm,
+    }
+  );
+  const userToken = await tokenDB.findById(user.id);
+  if (userToken) {
+    let user = await verifyTokenWithJWT(userToken.token, {
+      refreshToken: true,
+    });
+    let isExpired = tokenHasExpired(user);
+    if (isExpired) {
+      await tokenDB.findByIdAndDelete({ _id: user.id });
+    }
+    return await tokenDB.findById(user._id);
+  }
+  return await tokenDB.create({ _id: user._id, token: rfToken });
+}
+
+async function signWithJWT(user) {
+  const accessToken = generateAccessToken(user);
+  const refreshToken = await generateRefreshToken(user).token;
+  return {
+    accessToken,
+    refreshToken,
+  };
 }
 
 exports.signWithJWT = signWithJWT;
@@ -88,13 +126,14 @@ exports.verify = function verify(password, hash) {
   });
 };
 
-exports.createSendWithToken = function createSendWithToken(
+exports.createSendWithToken = async function createSendWithToken(
   user,
   statusCode,
   res,
-  data
+  data,
+  { template }
 ) {
-  const token = signWithJWT(user);
+  const token = await signWithJWT(user);
 
   const cookieOptions = {
     expires: new Date(
@@ -103,11 +142,15 @@ exports.createSendWithToken = function createSendWithToken(
     secure: true,
     httpOnly: true,
   };
-  res.cookie('jwt', token, {
+  res.cookie('jwt', token.accessToken, {
     ...cookieOptions,
     httpOnly: config.currentEnvironment === 'production' ? true : false,
   });
+
   user.password = undefined;
+  if (template) {
+    return res.status(statusCode).render(template);
+  }
   if (data) {
     return res.status(statusCode).json(
       this.createSuccessResponse({
@@ -174,3 +217,5 @@ exports.createFailureResponse = (data) => ({
   status: 'failure',
   ...data,
 });
+
+exports.tokenHasExpired = tokenHasExpired;

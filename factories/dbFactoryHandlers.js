@@ -1,18 +1,32 @@
 const { codes, messages } = require('../helpers/constants');
 const { AppError } = require('../helpers/error');
 const util = require('../helpers/utils');
-
+const Email = require('../helpers/email');
 module.exports = {
-  createfn(model, { name }) {
-    return async (body, res) => {
-      const doc = await model.create(body);
-      if (!doc) {
-        return next(
-          new AppError(messages.NOT_CREATED(name), codes.BAD_REQUEST, false)
+  createfn(model, { name, email, url, template }) {
+    return async (body, res, req) => {
+      try {
+        const doc = await model.create(body);
+        if (!doc) {
+          return next(
+            new AppError(messages.NOT_CREATED(name), codes.BAD_REQUEST, false)
+          );
+        }
+        if (email) {
+          let url = `${req.protocol}://${req.get('host')}/me`;
+          await new Email(doc, url).sendWelcome();
+        }
+        return util.createSendWithToken(
+          doc,
+          codes.CREATED,
+          res,
+          { doc },
+          { template }
         );
+      } catch (err) {
+        console.log(err);
+        throw err;
       }
-      console.log(doc);
-      return util.createSendWithToken(doc, codes.CREATED, res, { doc });
     };
   },
   async deletefn(model, { id, res }) {

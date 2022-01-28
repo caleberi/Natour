@@ -9,6 +9,10 @@ const loginForm = document.querySelector('#login-form');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const bookBtn = document.getElementById('book-tour');
 const forgotForm = document.getElementById('forgot-form');
+const reviewBtn = document.querySelector('.reviews__add__review');
+const reviewFormContainer = document.querySelector('.review-form');
+// const reviewSubmitBtn = document.querySelector('.reviews__add__review');
+const reviewForm = document.querySelector('.review_form__form');
 
 if (mapBox) {
   const locations = JSON.parse(mapBox.dataset.locations);
@@ -37,4 +41,17 @@ if (forgotForm) {
     const email = document.getElementById('email').value;
     await forgot({ email });
   });
+}
+
+if (reviewBtn) {
+  reviewBtn.addEventListener('click', (e) => {
+    reviewBtn.classList.add('remove_review_btn');
+    reviewFormContainer.classList.remove('hide_review_form');
+  });
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', async (e) => {
+      reviewFormContainer.classList.add('hide_review_form');
+      reviewBtn.classList.remove('remove_review_btn');
+    });
+  }
 }

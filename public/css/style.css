@@ -1247,7 +1247,15 @@ body {
   margin: 0 auto;
 }
 
-.login-form {
+.remove_review_btn {
+  display: none;
+}
+
+.hide_review_form {
+  display: none;
+}
+.login-form,
+.review-form {
   margin: 0 auto;
   max-width: 55rem;
   background-color: #fff;

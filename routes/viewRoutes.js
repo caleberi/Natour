@@ -8,6 +8,12 @@ const {
   getSignupForm,
   updateUserData,
   updateUserPassword,
+  getForgetPasswordPage,
+  getManageTour,
+  getResetPasswordPage,
+  createReview,
+  likeOrUnlikeTour,
+  getForgetPasswordOTPPage,
 } = require('../controllers/viewController');
 const multer = require('multer');
 const multerStorage = multer.memoryStorage();
@@ -48,9 +54,9 @@ const multerFilter = (req, file, cb) => {
 
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 const { catchAsync } = require('../helpers/utils');
-const { isLoggedIn, isAuthenticated } = require('../middlewares');
+const { isLoggedIn, isAuthenticated, isAuthorized } = require('../middlewares');
 const { AppError } = require('../helpers/error');
-const { codes } = require('../helpers/constants');
+const { codes, roles } = require('../helpers/constants');
 const middlewares = require('../middlewares');
 const { createBookingCheckout } = require('../controllers/bookingController');
 const { signup } = require('../controllers/authController');
@@ -66,7 +72,19 @@ router.get('/me', isAuthenticated, getAccount);
 router.get('/', catchAsync(getLoginForm));
 router.get('/signup', getSignupForm);
 router.get('/my-tours', isAuthenticated, catchAsync(getMyTour));
-
+router.post('/add-review/:slug', isAuthenticated, catchAsync(createReview));
+router.get(
+  '/manage-tours',
+  isAuthenticated,
+  isAuthorized(roles.C_ADMIN, roles.C_LEAD_GUIDE),
+  catchAsync(getManageTour)
+);
+router.get('/forgot-password', catchAsync(getForgetPasswordPage));
+// router.get('/forgot-password-otp', catchAsync(getForgetPasswordOTPPage));
+router.get('/resetPassword/:token', catchAsync(getResetPasswordPage));
+router.get('/generateOTP', catchAsync(getForgetPasswordOTPPage));
+router.get(`/like/:tourSlug/:userId`, catchAsync(likeOrUnlikeTour));
+router.post('/');
 router.post(
   '/submit-user-data',
   isAuthenticated,
@@ -83,4 +101,5 @@ router.post(
   isAuthenticated,
   catchAsync(updateUserPassword)
 );
+
 module.exports = router;
