@@ -2,19 +2,19 @@ const db = require('../model/userModel');
 const util = require('../helpers/utils');
 const { AppError } = require('../helpers/error');
 const { cache } = require('../container');
-const { sendEmail } = require('../helpers/email');
+const Email = require('../helpers/email');
 const config = require('../config');
 const _ = require('lodash');
 const otpGenerator = require('otp-generator');
 const { codes, messages, errorType } = require('../helpers/constants');
 const { createfn } = require('../factories/dbFactoryHandlers');
-
+const tokenDB = require('../model/tokenModel');
 async function resolveJWT(token, req, res, next) {
   try {
     let user = await util.verifyTokenWithJWT(token);
-    let isExpired = Date.now() - user.exp < 1 * 60 * 24 * 60 * 1000;
-
+    let isExpired = util.tokenHasExpired(user);
     if (isExpired) {
+      await tokenDB.findByIdAndDelete({ _id: user.id });
       return next(
         new AppError(messages.EXPIRED_TOKEN, codes.BAD_REQUEST, false)
       );
@@ -61,26 +61,42 @@ exports.signup = async (req, res, next) => {
     return next(
       new AppError(messages.EMAIL_ALREADY_EXIST, codes.BAD_REQUEST, false)
     );
-  return await createfn(db, { name: 'User' })(payload, res);
+
+  if (req.originalUrl.startsWith('/api')) {
+    return await createfn(db, { name: 'User', email: true })(payload, res, req);
+  }
+  return await createfn(db, { name: 'User', email: true, template: 'login' })(
+    payload,
+    res,
+    req
+  );
 };
 
 //✅
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(
-      new AppError(messages.INVALID_EMAIL_PASSWORD, codes.BAD_REQUEST, false)
-    );
-  }
-
-  const user = await db.findOne({ email }).select('+password');
-  if (user) {
-    if (!(await db.verifyPassword(password, user.password))) {
-      return next(new AppError(messages.INVALID_PASSWORD, codes.BAD_REQUEST));
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(
+        new AppError(messages.INVALID_EMAIL_PASSWORD, codes.BAD_REQUEST, false)
+      );
     }
-    return util.createSendWithToken(user, codes.OK, res);
+
+    const user = await db.findOne({ email }).select('+password');
+    if (user) {
+      if (!(await db.verifyPassword(password, user.password))) {
+        return next(new AppError(messages.INVALID_PASSWORD, codes.BAD_REQUEST));
+      }
+      return util.createSendWithToken(user, codes.OK, res, null, {
+        template: null,
+      });
+    }
+    return next(
+      new AppError(messages.NOT_FOUND_EMAIL, codes.BAD_REQUEST, false)
+    );
+  } catch (err) {
+    console.log(err);
+    return next(err);
   }
-  return next(new AppError(messages.NOT_FOUND_EMAIL, codes.BAD_REQUEST, false));
 };
 
 exports.isAuthenticated = async (req, res, next) => {
@@ -132,12 +148,8 @@ exports.forgotPassword = async (req, res, next) => {
     return next(new AppError(messages.NOT_FOUND_EMAIL, codes.NOT_FOUND, false));
   const emailResetToken = await user.createPasswordResetToken();
   try {
-    await sendEmail({
-      details: {
-        email: user.email,
-        subject: 'Your 10min Email Reset  ',
-        urlResetToken: `${req.protocol}://${req.get(
-          'host'
+    let url = `${req.protocol}://${req.get(
+      'host'
         )}/api/v1/users/resetPassword/${emailResetToken}`,
       },
     });

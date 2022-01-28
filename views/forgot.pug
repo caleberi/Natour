@@ -1,0 +1,13 @@
+extends base
+
+block content
+    main.main
+        .login-form
+            h2.heading-secondary.ma-bt-lg Reset Password 
+            p.password__reset Please provide you email address to reset your password
+            form.form#forgot-form
+                .form__group
+                    label.form__label(for='email') Email address
+                    input#email.form__input(type='email', placeholder='you@example.com',autocomplete="username", required)
+                .form__group
+                    button.btn.btn--green Submit

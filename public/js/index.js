@@ -1,6 +1,6 @@
 /* eslint-disable */
 import '@babel/polyfill';
-import { login, logout } from './login';
+import { login, logout, forgot } from './login';
 import { displayMap } from './mapbox';
 import { bookTour } from './stripe';
 
@@ -8,6 +8,7 @@ const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('#login-form');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const bookBtn = document.getElementById('book-tour');
+const forgotForm = document.getElementById('forgot-form');
 
 if (mapBox) {
   const locations = JSON.parse(mapBox.dataset.locations);
@@ -27,5 +28,13 @@ if (bookBtn) {
     e.target.textContent = 'Processing';
     const { tourId } = e.target.dataset;
     await bookTour(tourId);
+  });
+}
+
+if (forgotForm) {
+  forgotForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    await forgot({ email });
   });
 }
