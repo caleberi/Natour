@@ -1,6 +1,6 @@
 # Natours Project Report
 ---------------------------------------------------------------
-![landing-page](../natours/landing_page.PNG)
+![landing-page](./landing_page.PNG)
 Although this was initially , a udemy course but the design pattern  and use of technology differs as well as the number of added feature both at the backend and frontend
 
 
