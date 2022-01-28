@@ -32,6 +32,10 @@ const db = config.mongoUseLocal
       process.env.MONGO_PASSWORD
     );
 
+server.on('error', (err) => {
+  console.log(err);
+});
+
 function closeServer(server) {
   server.close((err) => {
     if (err) console.log(err);
